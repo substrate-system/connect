@@ -1,36 +1,60 @@
-# template ts browser
+# linker
+![tests](https://github.com/substrate-system/linker/actions/workflows/nodejs.yml/badge.svg)
+[![types](https://img.shields.io/npm/types/@substrate-system/linker?style=flat-square)](README.md)
+[![module](https://img.shields.io/badge/module-ESM%2FCJS-blue?style=flat-square)](README.md)
+[![semantic versioning](https://img.shields.io/badge/semver-2.0.0-blue?logo=semver&style=flat-square)](https://semver.org/)
+[![Common Changelog](https://nichoth.github.io/badge/common-changelog.svg)](./CHANGELOG.md)
+[![install size](https://flat.badgen.net/packagephobia/install/@substrate-system/linker)](https://packagephobia.com/result?p=@substrate-system/linker)
+[![dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg?style=flat-square)](package.json)
+[![license](https://img.shields.io/badge/license-Polyform_Small_Business-249fbc?style=flat-square)](LICENSE)
 
-A template for typescript *dependency* modules that run in a browser environment.
-Uses `tape-run` for tests in a browser. See [template-ts](https://github.com/nichoth/template-ts) for the same thing but targeting Node.
+
+Link two devices via websocket. This has appropriate semantics for connecting
+via websocket.
+
+[See a live demo](https://substrate-system.github.io/linker/)
+
+<details><summary><h2>Contents</h2></summary>
+<!-- toc -->
+</details>
+
+## install
+
+```sh
+npm i -S @substrate-system/linker
+```
+
+## API
+
+This exposes ESM and common JS via [package.json `exports` field](https://nodejs.org/api/packages.html#exports).
+
+### ESM
+```js
+import '@substrate-system/linker'
+```
+
+### Common JS
+```js
+require('@substrate-system/linker')
+```
 
 ## use
-1. Use the template button in github. Or clone this then
-`rm -rf .git && git init`. Then `npm i && npm init`.
 
-2. Edit the source code in `src/index.ts`.
+### JS
+```js
+import '@substrate-system/linker'
+```
 
-3. Delete either `.github/workflows/gh-pages-docs.yml` or `.github/workflows/gh-pages.yml`, depending on whether you want to deploy an example or docs to github pages.
+### pre-built JS
+This package exposes minified JS files too. Copy them to a location that is
+accessible to your web server, then link to them in HTML.
 
-4. __Edit things__
-    * Use `./README.example.md` as a starter for docs:
-    ```sh
-    cp ./README.example.md ./README.md
-    ```
-    * edit the [build-example](https://github.com/nichoth/template-web-component/blob/c580636f1c912fe2633f7c2478f28b11729c9b80/package.json#L20) command in `package.json` so that it has the right
-    namespace for github pages
+#### copy
+```sh
+cp ./node_modules/@substrate-system/linker/dist/module.min.js ./public
+```
 
-## featuring
-
-* compile the source to both ESM and CJS format, and put compiled files in `dist`.
-* ignore `dist` and `*.js` in git, but don't ignore them in npm. That way we
-  don't commit any compiled code to git, but it is available to consumers.
-* use npm's `prepublishOnly` hook to compile the code before publishing to npm.
-* use [exports](./package.json#L41) field in `package.json` to make sure the right format is used
-  by consumers.
-* `preversion` npm hook -- lint
-* `postversion` npm hook -- `git push --follow-tags && npm publish`
-* eslint -- `npm run lint`
-* tests run in a browser environment via `tape-run` -- see [`npm test`](./package.json#L12).
-  Includes `tap` testing tools -- [tapzero](https://github.com/bicycle-codes/tapzero)
-  and [tap-spec](https://www.npmjs.com/package/tap-spec)
-* CI via github actions
+#### HTML
+```html
+<script type="module" src="./module.min.js"></script>
+```
