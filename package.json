@@ -1,7 +1,12 @@
 {
-  "private": true,
-  "type": "module",
+  "name": "@substrate-system/connect",
   "version": "0.0.0",
+  "type": "module",
+  "description": "Websocket handshake",
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
   "main": "dist/index.js",
   "files": [
     "./dist/*"
@@ -81,5 +86,18 @@
     "vite": "^6.2.2"
   },
   "author": "nichoth <nichoth@nichoth.com> (https://nichoth.com)",
-  "license": "SEE LICENSE IN LICENSE"
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/substrate-system/connect.git"
+  },
+  "keywords": [
+    "websocket",
+    "partykit"
+  ],
+  "types": "./dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/substrate-system/connect/issues"
+  },
+  "homepage": "https://github.com/substrate-system/connect#readme"
 }
