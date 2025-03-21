@@ -42,9 +42,14 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "ky": "^1.7.5",
+    "nanoid": "^5.1.5",
+    "nanoid-dictionary": "^4.3.0",
     "partysocket": "1.0.3"
   },
   "devDependencies": {
+    "@bicycle-codes/keys": "^0.1.12",
+    "@bicycle-codes/request": "^0.7.0",
     "@preact/preset-vite": "^2.9.0",
     "@substrate-system/debug": "^0.7.22",
     "@substrate-system/tapzero": "^0.10.13",
