@@ -6,9 +6,6 @@ import ky, { type HTTPError } from 'ky'
 const debug = createDebug()
 const createCode = customAlphabet(numbers, 6)
 
-// export const PARTYKIT_HOST:string = (import.meta.env.DEV ?
-//     'https://connect.nichoth.partykit.dev')
-
 export class Connection extends PartySocket {
     PARTYKIT_HOST:string
 
@@ -29,10 +26,10 @@ export class Connection extends PartySocket {
      */
     static async init (
         publicURL:string,
-        opts:{ headers:Record<string, string>, note?:any },
+        opts:{ headers?:Record<string, string>, note?:any } = {},
         createRoom?:()=>string,
     ):Promise<[string, Connection]> {
-        const host = import.meta.env.DEV ? 'http://localhost:1999' : publicURL
+        const host = import.meta?.env?.DEV ? 'http://localhost:1999' : publicURL
         const code = await getRoom(host, createRoom)
 
         // first need to "open" the room -- send a POST request
@@ -94,7 +91,7 @@ export class Connection extends PartySocket {
         publicHost:string,
         data?:any,
     ):Promise<Connection> {
-        const host = (import.meta.env.DEV ?
+        const host = (import.meta?.env?.DEV ?
             'http://localhost:1999' :
             publicHost)
 

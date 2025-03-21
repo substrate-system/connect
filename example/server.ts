@@ -39,6 +39,20 @@ export default class Server extends Connection implements Party.Server {
 
         return new Response(null, { status: 200, headers: Connection.CORS })
     }
+
+    /**
+     * The new machine has been verified by the original machine.
+     */
+    async onApprove (msg:JSONSerializeable):Promise<this> {
+        console.log('approved this machine', msg)
+        // add the new machine to a database...
+        return this
+    }
+
+    async onReject (msg:JSONSerializeable):Promise<this> {
+        console.log('reject this machine', msg)
+        return this
+    }
 }
 
 Server satisfies Party.Worker

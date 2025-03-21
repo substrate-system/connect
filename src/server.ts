@@ -15,7 +15,7 @@ export abstract class Connection implements Party.Server {
     private note:null|false|string
     static CORS = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Methods': 'HEAD, POST, GET, OPTIONS',
         'Access-Control-Allow-Headers':
             'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     }
@@ -47,6 +47,10 @@ export abstract class Connection implements Party.Server {
      */
     abstract auth (_req:Party.Request):Promise<Response>
 
+    abstract onApprove (msg:JSONSerializeable):Promise<this>
+
+    abstract onReject (msg:JSONSerializeable):Promise<this>
+
     /**
      * The existing device must make a POST request before the new machine
      * tries to connect. The POST request will have a signature that we verify.
@@ -76,9 +80,15 @@ export abstract class Connection implements Party.Server {
             // this is the existing machine, checking if the room name
             // has been used yet. 200 means it is not in use.
             if (!this.isOpen) {
-                return new Response(null, { status: 200, headers: Connection.CORS })
+                return new Response(null, {
+                    status: 200,
+                    headers: Connection.CORS
+                })
             } else {
-                return new Response(null, { status: 409, headers: Connection.CORS })
+                return new Response(null, {
+                    status: 409,
+                    headers: Connection.CORS
+                })
             }
         }
 
@@ -88,12 +98,14 @@ export abstract class Connection implements Party.Server {
          */
         if (req.method === 'GET') {
             if (!this.isOpen) {
-                return new Response(null, { status: 409, headers: Connection.CORS })
+                return new Response(null, {
+                    status: 409,
+                    headers: Connection.CORS
+                })
             }
 
             // is open
             // this is the new machine
-
             return Response.json({ note: this.note }, {
                 status: 200,
                 headers: Connection.CORS
@@ -154,12 +166,6 @@ export abstract class Connection implements Party.Server {
             // must call with a POST request to "open" the room, handle auth
             return conn.close(1002, 'Room is not open')
         }
-
-        // tell the other machine
-        // this.room.broadcast(JSON.stringify({
-        //     type: 'join',
-        //     data: { id: conn.id }
-        // }), [conn.id])
     }
 
     async onMessage (message:string, sender:Party.Connection) {
@@ -171,12 +177,20 @@ export abstract class Connection implements Party.Server {
         // new machine sends an arbitrary message
 
         // existing machine listens for the message, then
-        // approves the new machine, and send a message telling
+        // approves the new machine, and sends a message telling
         // the new machine it was approved
 
         console.log('**got a message**', message)
 
-        // const msg = JSON.parse(message)
+        const msg:{ type:string } = JSON.parse(message)
+        if (msg.type === 'approve') {
+            // emit approve event here
+            this.onApprove(msg)
+        }
+
+        if (msg.type === 'reject') {
+            this.onReject(msg)
+        }
 
         // tell the other machine
         this.room.broadcast(message, [sender.id])

@@ -11,6 +11,14 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./server": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs"
+    },
+    "./client": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
     "./*": {
       "import": [
         "./dist/*.js",
@@ -24,9 +32,9 @@
   },
   "scripts": {
     "lint": "eslint \"./**/*.{ts,js}\"",
-    "build-tests": "esbuild test/index.ts --target=es2020 --bundle --keep-names > test/test-bundle.js",
     "test": "npm run lint && npm run build && npm run build-tests && npm run test-tape-run",
-    "test-tape-run": "cat test/index.html | tape-run --input=html --static=test | tap-spec",
+    "build-tests": "esbuild test/index.ts --target=es2020 --bundle --keep-names > test/test-bundle.js",
+    "test-tape-run": "concurrently --kill-others -s first \"npx partykit dev\" \"wait-on http://localhost:1999/parties/main/abc && cat test/index.html | tape-run --input=html --static=test\"",
     "build-cjs": "esbuild src/*.ts --format=cjs --keep-names --tsconfig=tsconfig.build.json --outdir=./dist --out-extension:.js=.cjs --sourcemap",
     "build-cjs:min": "esbuild src/*.ts --format=cjs --minify --keep-names --tsconfig=tsconfig.build.json --outdir=./dist --out-extension:.js=.min.cjs --sourcemap",
     "build-esm": "esbuild src/*.ts --format=esm --metafile=dist/meta.json --keep-names --tsconfig=tsconfig.build.json --outdir=./dist --sourcemap && tsc --emitDeclarationOnly --project tsconfig.build.json --outDir dist",
@@ -54,6 +62,7 @@
     "@preact/preset-vite": "^2.9.0",
     "@substrate-system/debug": "^0.7.22",
     "@substrate-system/tapzero": "^0.10.13",
+    "@substrate-system/wait-on": "^8.0.3",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "auto-changelog": "^2.4.0",
