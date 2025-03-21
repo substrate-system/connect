@@ -20,17 +20,20 @@ const createHeaders = HeaderFactory({
 })
 
 const Example:FunctionComponent<unknown> = function () {
-    const [connection, setConnection] = useState<WebSocket|null>(null)
+    // our ws connection
+    const [connection, setConnection] = useState<Connection|null>(null)
     const [code, setCode] = useState<string|null>(null)
-    const [otherMachine, setOtherMachine] = useState<string|null>(null)
-
-    debug('connection', connection)
+    // a string for the other machine
+    const [otherMachine, setOtherMachine] = useState<any|null>(null)
+    const [note, setNote] = useState<{ note:string }|null>(null)
+    const [verified, setVerified] = useState<null|boolean>(null)
 
     const init = useCallback(async (ev:SubmitEvent) => {
         ev.preventDefault()
-        debug('submit')
         const els = (ev.target as HTMLFormElement).elements
-        const note = els['note']
+        const note = els['note'].value
+
+        // an example of auth via headers
         const [code, ws] = await Connection.init(
             'https://connect.nichoth.partykit.dev',
             {
@@ -38,8 +41,6 @@ const Example:FunctionComponent<unknown> = function () {
                 note
             }
         )
-        debug('connected...', ws)
-        debug('the code', code)
         setConnection(ws)
         setCode(code)
 
@@ -50,20 +51,41 @@ const Example:FunctionComponent<unknown> = function () {
         })
     }, [])
 
+    const approve = useCallback((ev:MouseEvent) => {
+        debug('approve them', connection)
+        ev.preventDefault()
+        connection!.approve()
+        setVerified(true)
+    }, [connection])
+
     const join = useCallback(async (ev:SubmitEvent) => {
         ev.preventDefault()
         const els = (ev.target as HTMLFormElement).elements
-        const code = els['code']
-        const ws = await Connection.join(code, PARTYKIT_HOST, {
-            hello: 'hello'
-        })
+        const code = els['code'].value
+        const note = els['joinnote'].value
+        const ws = await Connection.join(code, PARTYKIT_HOST, { note })
         setConnection(ws)
+        setCode(code)
+        ws.addEventListener('note', function onNote (ev) {
+            setNote(ev.detail)
+            ws.removeEventListener('note', onNote)
+        })
+        ws.addEventListener('approve', function onApprove (ev) {
+            debug('the new device was approved', ev.detail)
+            setVerified(true)
+            ws.removeEventListener('approve', onApprove)
+        })
+        ws.addEventListener('reject', function onReject (ev) {
+            setVerified(false)
+            debug('the new device was rejected :(', ev.detail)
+            ws.removeEventListener('reject', onReject)
+        })
     }, [])
 
     return html`<div>
-        <p>
+        <div>
             Room number: <code>${code}</code>
-        </p>
+        </div>
 
         <div>
             Connected? ${(!!connection).toString()}
@@ -73,17 +95,77 @@ const Example:FunctionComponent<unknown> = function () {
             Other machine connected? ${(!!otherMachine).toString()}
         </div>
 
-        <form onSubmit=${init}>
-            <label for="note">Note</label>
-            <input id="note" name="note" type="text" />
-            <button type="submit">init</button>
-        </form>
+        <div>
+            Second device approved? ${(verified === null ?
+                html`<code>null</code>` :
+                html`<code>${verified.toString()}</code>`)}
+        </div>
 
-        <form onSubmit=${join}>
-            <label for="code">Code</label>
-            <input name="code" id="code" type="number" />
-            <button type="submit">Join</button>
-        </form>
+        <hr />
+
+        <p>
+            This demonstrates using websockets to authenticate &
+            authorize a second machine for a user account.
+        </p>
+
+        ${note ?
+            html`
+                <p>
+                    Note from the first machine:
+                </p>
+                <div><pre>${JSON.stringify(note, null, 2)}</pre></div>
+            ` :
+            null
+        }
+
+        ${otherMachine ?
+            html`<div>
+                The second machine is here.
+                <pre>${JSON.stringify(otherMachine, null, 2)}</pre>
+
+                <form>
+                    <button onClick=${approve}>Approve</button>
+                </form>
+            </div>` :
+            null
+        }
+
+        ${connection ?
+            null :
+            html`
+                <form onSubmit=${init}>
+                    <h2>Initiate connection</h2>
+                    <p>
+                        This session must be started by a machine that is
+                        already active on your account.
+                    </p>
+                    <p>
+                        We check the headers in a POST request to validate
+                        the session.
+                    </p>
+                    <label for="note">Note</label>
+                    <input id="note" name="note" type="text" />
+                    <button type="submit">init</button>
+                </form>
+
+                <form onSubmit=${join}>
+                    <h2>Connect to another machine</h2>
+                    <p>
+                        This should be filled out by the new machine,
+                        with the room number created by the first machine.
+                    </p>
+                    <div>
+                        <label for="joinnote">Note:</label>
+                        <input id="joinnote" name="joinnote" type="text" />
+                    </div>
+                    <div>
+                        <label for="code">Code</label>
+                        <input name="code" id="code" type="number" />
+                    </div>
+                    <button type="submit">Join</button>
+                </form>
+            `
+        }
     </div>`
 }
 

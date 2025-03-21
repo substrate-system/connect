@@ -111,11 +111,14 @@ export abstract class Connection implements Party.Server {
                 // this should not happen
                 // this means this is not the first connection
                 // the new machine does not do POST calls
-                return new Response(null, { status: 409, headers: Connection.CORS })
+                return new Response(null, {
+                    status: 409,
+                    headers: Connection.CORS
+                })
             }
 
             // Need to auth the first machine.
-            // Needs to happen in client code.
+            // Should happen in implementation code.
             const res = await this.auth(req)
 
             // if auth fail
@@ -123,12 +126,16 @@ export abstract class Connection implements Party.Server {
                 return res
             }
 
+            // else, handle the incoming `note`
             let msg:{ note:string }
             try {
                 msg = await req.json<{ note:string }>()
             } catch (err) {
                 console.log('**err parsing**', err)
-                return new Response(null, { status: 422, headers: Connection.CORS })
+                return new Response(null, {
+                    status: 422,
+                    headers: Connection.CORS
+                })
             }
 
             this.note = msg.note || false
@@ -149,10 +156,10 @@ export abstract class Connection implements Party.Server {
         }
 
         // tell the other machine
-        this.room.broadcast(JSON.stringify({
-            type: 'join',
-            id: conn.id
-        }), [conn.id])
+        // this.room.broadcast(JSON.stringify({
+        //     type: 'join',
+        //     data: { id: conn.id }
+        // }), [conn.id])
     }
 
     async onMessage (message:string, sender:Party.Connection) {
@@ -162,8 +169,10 @@ export abstract class Connection implements Party.Server {
         }
 
         // new machine sends an arbitrary message
+
         // existing machine listens for the message, then
-        // approves the new machine
+        // approves the new machine, and send a message telling
+        // the new machine it was approved
 
         console.log('**got a message**', message)
 

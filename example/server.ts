@@ -7,6 +7,10 @@ import {
 import { Connection } from '../src/server.js'
 
 export default class Server extends Connection implements Party.Server {
+    /**
+     * `auth` must be implemented by the consumer.
+     * This is called when you start a new session.
+     */
     async auth (req:Party.Request) {
         // first connection
         // check the auth header, then open the room

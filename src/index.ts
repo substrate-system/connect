@@ -31,7 +31,7 @@ export class Connection extends PartySocket {
         publicURL:string,
         opts:{ headers:Record<string, string>, note?:any },
         createRoom?:()=>string,
-    ):Promise<[string, WebSocket]> {
+    ):Promise<[string, Connection]> {
         const host = import.meta.env.DEV ? 'http://localhost:1999' : publicURL
         const code = await getRoom(host, createRoom)
 
@@ -44,7 +44,7 @@ export class Connection extends PartySocket {
         const ws = new Connection({
             host,
             room: code
-        }) as WebSocket & { PARTYKIT_HOST }
+        })
 
         ws.PARTYKIT_HOST = host
 
@@ -52,22 +52,37 @@ export class Connection extends PartySocket {
 
         ws.addEventListener('message', function onMessage (ev) {
             // we should get 1 message from the new machine
-            const msg = JSON.parse(ev.data)
+            const msg:{ type:string, data:any } = JSON.parse(ev.data)
+            debug('got join event in init')
 
             if (msg.type === 'join') {
                 const joinEv = new CustomEvent('join', {
                     bubbles: true,
                     cancelable: true,
-                    detail: msg
+                    detail: msg.data
                 })
                 ws.dispatchEvent(joinEv)
-                ws.send(JSON.stringify({ type: 'done' }))
-            }
 
-            ws.removeEventListener('message', onMessage)
+                return ws.removeEventListener('message', onMessage)
+            }
+            debug('unexpected message type', msg)
         })
 
         return [code, ws]
+    }
+
+    /**
+     * Called by machine 1 after seeing machine 2 connect.
+     */
+    approve () {
+        this.send(JSON.stringify({ type: 'approve' }))
+    }
+
+    /**
+     * Called by machine 1 after seeing machine 2 connect.
+     */
+    reject () {
+        this.send(JSON.stringify({ type: 'reject' }))
     }
 
     /**
@@ -78,7 +93,7 @@ export class Connection extends PartySocket {
         code:string,
         publicHost:string,
         data?:any,
-    ):Promise<WebSocket> {
+    ):Promise<Connection> {
         const host = (import.meta.env.DEV ?
             'http://localhost:1999' :
             publicHost)
@@ -87,29 +102,43 @@ export class Connection extends PartySocket {
         const wsData:{ note } = await ky.get(getPartyUrl(host, code)).json()
 
         const ws = new Connection({
-            host: publicHost,
+            host,
             room: code
-        }) as WebSocket
+        })
 
         const noteEvent = new CustomEvent('note', {
             bubbles: true,
             cancelable: true,
             detail: wsData
         })
-        ws.dispatchEvent(noteEvent)
+        setTimeout(() => {
+            ws.dispatchEvent(noteEvent)
+        }, 0)
 
         ws.send(JSON.stringify({ type: 'join', data }))
 
         ws.addEventListener('message', function onMsg (ev) {
             const msg = JSON.parse(ev.data)
             const { type, data } = msg
-            if (type === 'done') {
-                const doneEvent = new CustomEvent('done', {
+            if (type === 'approve') {
+                debug('approve msg in joiner', msg)
+                const approveEvent = new CustomEvent('approve', {
                     bubbles: true,
                     cancelable: true,
                     detail: data
                 })
-                ws.dispatchEvent(doneEvent)
+                ws.dispatchEvent(approveEvent)
+                return ws.removeEventListener('message', onMsg)
+            }
+
+            if (type === 'reject') {
+                debug('reject msg in joiner')
+                const rejectEvent = new CustomEvent('reject', {
+                    bubbles: true,
+                    cancelable: true,
+                    detail: data
+                })
+                ws.dispatchEvent(rejectEvent)
                 ws.removeEventListener('message', onMsg)
             }
         })

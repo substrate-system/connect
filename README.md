@@ -8,8 +8,10 @@
 [![dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg?style=flat-square)](package.json)
 [![license](https://img.shields.io/badge/license-Polyform_Small_Business-249fbc?style=flat-square)](LICENSE)
 
+A websocket client and server, with semantics for adding
+a second machine to an account.
 
-A minimal handshake via websocket.
+This depends on [partykit](https://partykit.io/)
 
 [See a live demo](https://substrate-system.github.io/connect/)
 
