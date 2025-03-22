@@ -30,6 +30,7 @@ This depends on [partykit](https://partykit.io/).
   * [client](#client)
 - [API](#api)
   * [client](#client-1)
+- [develop](#develop)
 
 <!-- tocstop -->
 
