@@ -231,8 +231,8 @@ previously, meaning `join` must be called after the other machine has called
 The `join` method accepts a third argument of some arbitrary data,
 which will be JSON encoded and send to the other machine via websocket.
 
-After getting a websocket via `join`, it will emit several events specific
-to the use-case:
+After getting a websocket via `join`, the websocket will emit several events
+specific to the use-case:
 
 * `note` -- some data created by the existing device.
 * `approve` -- when the other device sends an "approve" message
