@@ -56,6 +56,8 @@ server-side logic for approving a request.
 
 Also note the method `auth` that needs to be implemented.
 
+See [the example](./example/) for more detail.
+
 
 ----------------------------------------------------------------------
 
