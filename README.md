@@ -20,6 +20,7 @@ This depends on [partykit](https://partykit.io/).
 <!-- toc -->
 
 - [install](#install)
+- [How this works](#how-this-works)
 - [Modules](#modules)
   * [ESM](#esm)
   * [Common JS](#common-js)
