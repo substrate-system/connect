@@ -45,7 +45,7 @@ export abstract class Connection implements Party.Server {
      * Consumer must implement this method. We use this when an exising
      * machine "opens" a room. This is called in the `onRequest` method.
      */
-    abstract auth (_req:Party.Request):Promise<Response>
+    abstract auth (req:Party.Request):Promise<Response>
 
     abstract onApprove (msg:JSONSerializeable):Promise<this>
 
