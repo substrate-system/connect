@@ -44,7 +44,7 @@ npm i -S @substrate-system/connect
 
 ## How this works
 This uses some out-of-band data to approve or deny
-a request. This was originally developed for the use-case of adding a new
+a request. This was originally developed for adding a new
 machine to an existing user's account, so the method names and events are
 appropriate for that use-case.
 
