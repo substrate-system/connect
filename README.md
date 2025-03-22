@@ -97,8 +97,8 @@ This is an example of the confirmation process, as would be relevant to
 adding a second machine to an existing user.
 
 Start a session from an authorized machine. You need to implement the `auth`
-method in the serverside class. The `auth` method will be passed any data
-that the existing device sent with the "approve" message.
+method in the serverside class. The `auth` method will be passed the initial
+HTTP `POST` request that the client sends to authenticate & open the room.
 
 ### server
 This is a partykit server instance.
@@ -316,4 +316,13 @@ class Connection {
         data?:any,
     ):Promise<Connection>
 }
+```
+
+## develop
+
+Start a local `vite` server, a local `partykit` websocket server, and
+open a browser.
+
+```sh
+npm start
 ```

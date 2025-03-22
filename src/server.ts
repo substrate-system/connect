@@ -180,8 +180,6 @@ export abstract class Connection implements Party.Server {
         // approves the new machine, and sends a message telling
         // the new machine it was approved
 
-        console.log('**got a message**', message)
-
         const msg:{ type:string } = JSON.parse(message)
         if (msg.type === 'approve') {
             // emit approve event here
