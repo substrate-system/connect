@@ -107,7 +107,7 @@ This is a partykit server instance.
 Permissive CORS headers are exposed at `Connection.CORS`. Override this static
 property to use different CORS headers.
 
-The `Connection` class reads the response code in the `Response` obuject
+The `Connection` class reads the response code in the `Response` object
 returned from `auth`. That's how we **determine if we should open a**
 **session or not**.
 
